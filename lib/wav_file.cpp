@@ -10,7 +10,7 @@
 
 #include "config.hpp"
 
-namespace itmo_loops {
+namespace itmoloops {
 
 namespace {
 
@@ -113,4 +113,4 @@ WavReader::WavReader(std::string file_path) {
     }
 }
 
-}  // namespace itmo_loops
+}  // namespace itmoloops

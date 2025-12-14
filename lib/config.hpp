@@ -1,7 +1,7 @@
 #include <cstddef>
 
-namespace itmo_loops {
+namespace itmoloops {
 
 constexpr size_t kBitsInByte = 8;
 
-}  // namespace itmo_loops
+}  // namespace itmoloops

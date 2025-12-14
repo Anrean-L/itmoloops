@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace itmo_loops {
+namespace itmoloops {
 
 class WavReader {
    public:
@@ -17,4 +17,4 @@ class WavReader {
     bool is_valid_ = true;
 };
 
-};  // namespace itmo_loops
+};  // namespace itmoloops
