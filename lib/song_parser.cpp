@@ -64,6 +64,7 @@ class InstrumentBuilder {
     InstrumentBuilder(const std::string& name, const std::string& type)
         : name_(name), type_(type) {}
     void AddParam(std::string key, std::string value) { params_[key] = value; }
+    std::string Name() const { return name_; }
 
     std::unique_ptr<Instrument> Build();
 
@@ -91,8 +92,28 @@ std::unique_ptr<Composition> ParseComposition(std::string file_path) {
             continue;
         }
         std::vector<std::string> tokens = Split(line);
+        std::string current_pattern_name;
+        std::unique_ptr<Pattern> current_pattern;
         switch (state) {
             case State::Global: {
+                if (tokens[0] == "bpm") {
+                    comp->SetBpm(std::stoi(tokens[1]));
+                } else if (tokens[0] == "instrument") {
+                    if (tokens.size() < 3) {
+                        return nullptr;
+                    }
+                    InstrumentBuilder instrument_builder(tokens[1], tokens[2]);
+                    state = State::Instrument;
+                } else if (tokens[0] == "pattern") {
+                    if (tokens.size() < 4) {
+                        return nullptr;
+                    }
+                    current_pattern_name = tokens[1];
+                    current_pattern =
+                        std::make_unique<Pattern>(stoi(tokens[3]));
+
+                    state = State::Pattern;
+                }
                 break;
             }
             case State::Instrument: {

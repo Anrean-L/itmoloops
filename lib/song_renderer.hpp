@@ -109,7 +109,16 @@ class TriangleInstrument : public Instrument {
 
 class Pattern {
    public:
+    explicit Pattern(uint32_t resolution) : resolution_(resolution) {}
     void Expand(uint32_t bpm, std::vector<ScheduledNote>& out);
+
+    void AddNote(uint32_t unit_start, Note note, std::string inst) {
+        events_.emplace_back(unit_start, InstrumentCall{note, std::move(inst)});
+    }
+
+    void AddCall(uint32_t unit_start, std::string pattern_name) {
+        events_.emplace_back(unit_start, PatternCall{std::move(pattern_name)});
+    }
 
    private:
     struct InstrumentCall {
@@ -125,22 +134,32 @@ class Pattern {
         uint32_t unit_start;
         std::variant<InstrumentCall, PatternCall> call;
     };
-    uint32_t resolution;
+    uint32_t resolution_;
     std::vector<Event> events_;
 };
 
 class Composition {
    public:
+    void SetBpm(uint32_t new_bpm) { bpm_ = new_bpm; }
+
+    void AddInstrument(std::string name, std::unique_ptr<Instrument> inst) {
+        instruments_.emplace_back(std::move(name), std::move(inst));
+    }
+
+    void AddPattern(std::string name, std::unique_ptr<Pattern> pattern) {
+        patterns_.emplace_back(std::move(name), std::move(pattern));
+    }
+
     bool CreateComposition();
 
    private:
-    uint32_t bpm;
+    uint32_t bpm_ = 60;
     using CompositionPattern = std::pair<std::string, std::unique_ptr<Pattern>>;
     using CompositionInstrument =
         std::pair<std::string, std::unique_ptr<Instrument>>;
-    std::vector<CompositionPattern> patterns;
-    std::vector<CompositionInstrument> instruments;
-    std::vector<ScheduledNote> notes;
+    std::vector<CompositionPattern> patterns_;
+    std::vector<CompositionInstrument> instruments_;
+    std::vector<ScheduledNote> notes_;
     bool PrepareData();
 };
 
