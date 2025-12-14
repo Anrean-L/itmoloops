@@ -6,9 +6,11 @@
 
 namespace itmoloops {
 
+bool WavWriter(const std::string& file_path, const std::vector<uint16_t>& data);
+
 class WavReader {
    public:
-    explicit WavReader(std::string file_path);
+    explicit WavReader(const std::string& file_path);
     bool CheckValidity() const { return is_valid_; }
     const std::vector<int16_t>& GetData() const { return data_; }
 

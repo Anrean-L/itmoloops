@@ -7,6 +7,7 @@
 #include <ios>
 #include <string>
 #include <type_traits>
+#include <vector>
 
 #include "config.hpp"
 
@@ -23,6 +24,7 @@ constexpr char kFormatChunkId[] = "fmt ";
 constexpr uint16_t kAudioFormat = 1;
 constexpr uint16_t kBitsPerSample = 16;
 constexpr uint16_t kChannels = 1;
+constexpr uint32_t kHeaderSize = 36;
 
 struct RiffHeader {
     char id[4];
@@ -75,9 +77,22 @@ bool CheckFormat(std::ifstream& f) {
     return true;
 }
 
+void WriteFormatHeader(std::ofstream& out) {
+    uint16_t bytes_per_block = kChannels * kBitsPerSample / kBitsInByte;
+    uint32_t bytes_per_sec = kFrequency * bytes_per_block;
+    out.write(kFormatChunkId, std::strlen(kFormatChunkId));
+    out.write((char*)&kFormatHeaderSize, sizeof(kFormatHeaderSize));
+    out.write((char*)&kAudioFormat, sizeof(kAudioFormat));
+    out.write((char*)&kChannels, sizeof(kChannels));
+    out.write((char*)&kFrequency, sizeof(kFrequency));
+    out.write((char*)&bytes_per_sec, sizeof(bytes_per_sec));
+    out.write((char*)&bytes_per_block, sizeof(bytes_per_block));
+    out.write((char*)&kBitsPerSample, sizeof(kBitsPerSample));
+}
+
 }  // namespace
 
-WavReader::WavReader(std::string file_path) {
+WavReader::WavReader(const std::string& file_path) {
     std::ifstream f(file_path, std::ios::binary);
     char buffer[kWavBufferSize];
     RiffHeader riff_header{};
@@ -110,6 +125,27 @@ WavReader::WavReader(std::string file_path) {
             f.seekg(chunk_size, std::ios::cur);
         }
     }
+}
+
+bool WavWriter(const std::string& file_path,
+               const std::vector<int16_t>& samples) {
+    std::ofstream out(file_path, std::ios::binary);
+    if (!out) {
+        return false;
+    }
+    uint32_t data_size = samples.size() * sizeof(samples[0]);
+    uint32_t file_size = data_size + kHeaderSize;
+    out.write(kFileId, std::strlen(kFileId));
+    out.write((char*)&file_size, sizeof(file_size));
+    out.write(kFileFormatId, std::strlen(kFileFormatId));
+
+    WriteFormatHeader(out);
+
+    out.write(kDataChunkId, std::strlen(kDataChunkId));
+    out.write((char*)&data_size, sizeof(data_size));
+    out.write((char*)samples.data(), data_size);
+
+    return true;
 }
 
 }  // namespace itmoloops
