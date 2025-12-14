@@ -8,6 +8,8 @@
 #include <variant>
 #include <vector>
 
+#include "config.hpp"
+
 namespace itmoloops {
 
 struct Note {
@@ -29,13 +31,17 @@ struct ScheduledNote {
 class Instrument {
    public:
     float ProcessSample(uint32_t sample);
+
     Instrument(float attack, float release)
-        : attack_(attack), release_(release) {}
+        : attack_(attack * kFrequency), release_(release * kFrequency) {}
 
     Instrument(const Instrument&) = delete;
     Instrument& operator=(const Instrument&) = delete;
     virtual ~Instrument() = default;
-    void AddVoice(const ScheduledNote& note);
+
+    void AddVoice(const ScheduledNote& note) {
+        voices_.push_back(CreateVoice(note));
+    }
 
    protected:
     struct Voice {
@@ -43,26 +49,26 @@ class Instrument {
         explicit Voice(const ScheduledNote& note) : note(note) {}
         virtual ~Voice() = default;
     };
-    std::vector<std::unique_ptr<Voice>> voices;
+
+    std::vector<std::unique_ptr<Voice>> voices_;
+    uint32_t attack_;
+    uint32_t release_;
 
     virtual std::unique_ptr<Voice> CreateVoice(const ScheduledNote& note) {
         return std::make_unique<Voice>(note);
     }
 
     virtual float GenerateVoiceSample(Voice& v, uint32_t sample) = 0;
-    float attack_;
-    float release_;
 };
 
 class SamplerInstrument : public Instrument {
    public:
-    SamplerInstrument(std::string sample_path, std::string root,
-                      uint32_t loop_start, uint32_t loop_end, float attack,
-                      float release);
+    SamplerInstrument(std::string sample_path, float root, uint32_t loop_start,
+                      uint32_t loop_end, float attack, float release);
 
    protected:
     struct SamplerVoice : Voice {
-        uint32_t sample_pos = 0;
+        float sample_pos = 0;
         explicit SamplerVoice(const ScheduledNote& note) : Voice(note) {}
     };
 
@@ -74,8 +80,8 @@ class SamplerInstrument : public Instrument {
    private:
     std::vector<float> sample_;
     float root_frequency_;
-    uint32_t loop_start_ = 0;
-    uint32_t loop_end_ = 0;
+    uint32_t loop_start_;
+    uint32_t loop_end_;
 };
 
 class SquareInstrument : public Instrument {

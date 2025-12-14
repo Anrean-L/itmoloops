@@ -21,7 +21,6 @@ constexpr char kFileFormatId[] = "WAVE";
 constexpr char kDataChunkId[] = "data";
 constexpr char kFormatChunkId[] = "fmt ";
 constexpr uint16_t kAudioFormat = 1;
-constexpr uint32_t kFrequency = 44100;
 constexpr uint16_t kBitsPerSample = 16;
 constexpr uint16_t kChannels = 1;
 

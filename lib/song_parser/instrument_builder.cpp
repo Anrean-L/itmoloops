@@ -61,7 +61,7 @@ uint32_t InstrumentBuilder::GetUint(const std::string& key,
 std::unique_ptr<Instrument> InstrumentBuilder::BuildSampler(
     float attack, float release) const {
     auto sample = GetParam("sample");
-    auto root = GetParam("root");
+    auto root = GetFloat("root", 0.f);
     if (!sample || !root) {
         return nullptr;
     }
@@ -73,9 +73,8 @@ std::unique_ptr<Instrument> InstrumentBuilder::BuildSampler(
         loop_start = std::stoul(first);
         loop_end = std::stoul(second);
     }
-    return std::make_unique<SamplerInstrument>(std::move(*sample),
-                                               std::move(*root), loop_start,
-                                               loop_end, attack, release);
+    return std::make_unique<SamplerInstrument>(
+        std::move(*sample), root, loop_start, loop_end, attack, release);
 }
 
 std::unique_ptr<Instrument> InstrumentBuilder::BuildSquare(
