@@ -16,7 +16,8 @@ class InstrumentBuilder {
     InstrumentBuilder(std::string name, std::string type)
         : name_(std::move(name)), type_(std::move(type)) {}
 
-    std::string GetName() const { return name_; }
+    const std::string& GetName() const { return name_; }
+
     void SetHeading(std::string name, std::string type) {
         name_ = std::move(name);
         type_ = std::move(type);

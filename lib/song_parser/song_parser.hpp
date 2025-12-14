@@ -2,11 +2,26 @@
 
 #include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "song_renderer.hpp"
 
 namespace itmoloops {
 
-std::unique_ptr<Composition> ParseComposition(std::string file_path);
+using Frequency = std::pair<std::string, float>;
+
+class FrequencyMap {
+   public:
+    explicit FrequencyMap(const std::string& file_path);
+
+    float GetFrequency(const std::string& note) const;
+
+   private:
+    std::vector<Frequency> frequency_;
+};
+
+std::unique_ptr<Composition> ParseComposition(
+    const std::string& file_path, const FrequencyMap& Frequency_map);
 
 };  // namespace itmoloops

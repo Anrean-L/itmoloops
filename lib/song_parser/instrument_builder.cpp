@@ -62,6 +62,9 @@ std::unique_ptr<Instrument> InstrumentBuilder::BuildSampler(
     float attack, float release) const {
     auto sample = GetParam("sample");
     auto root = GetParam("root");
+    if (!sample || !root) {
+        return nullptr;
+    }
     uint32_t loop_start = 0;
     uint32_t loop_end = 0;
     auto loop = GetParam("loop");
