@@ -116,7 +116,12 @@ class TriangleInstrument : public Instrument {
 class Pattern {
    public:
     explicit Pattern(uint32_t resolution) : resolution_(resolution) {}
-    void Expand(uint32_t bpm, std::vector<ScheduledNote>& out);
+    using CompositionPattern = std::pair<std::string, std::unique_ptr<Pattern>>;
+    using CompositionInstrument =
+        std::pair<std::string, std::unique_ptr<Instrument>>;
+    void Expand(uint32_t bpm, std::vector<ScheduledNote>& out, uint32_t offset,
+                std::vector<CompositionInstrument>& instruments,
+                std::vector<CompositionPattern>& patterns);
 
     void AddNote(uint32_t unit_start, Note note, std::string inst) {
         events_.emplace_back(unit_start, InstrumentCall{note, std::move(inst)});
@@ -129,11 +134,11 @@ class Pattern {
    private:
     struct InstrumentCall {
         Note note;
-        std::string instrument;
+        std::string instrument_name;
     };
 
     struct PatternCall {
-        std::string pattern;
+        std::string pattern_name;
     };
 
     struct Event {
@@ -156,7 +161,7 @@ class Composition {
         patterns_.emplace_back(std::move(name), std::move(pattern));
     }
 
-    bool CreateComposition();
+    std::vector<uint16_t> CreateComposition();
 
    private:
     uint32_t bpm_ = 60;
@@ -166,7 +171,8 @@ class Composition {
     std::vector<CompositionPattern> patterns_;
     std::vector<CompositionInstrument> instruments_;
     std::vector<ScheduledNote> notes_;
-    bool PrepareData();
+
+    void PrepareData();
 };
 
 }  // namespace itmoloops

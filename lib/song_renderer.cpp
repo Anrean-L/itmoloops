@@ -1,17 +1,46 @@
 #include "song_renderer.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <numbers>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "config.hpp"
 #include "wav_file.hpp"
 
 namespace itmoloops {
+
+namespace {
+
+uint32_t UnitsToSamples(uint32_t units, uint32_t resolution, uint32_t bpm) {
+    return (float)kSecondsInMinute / bpm / resolution * units * kFrequency;
+}
+
+template <typename T>
+bool PairComparator(const std::pair<std::string, T>& pair,
+                    const std::string& value) {
+    return pair.first < value;
+}
+
+template <typename T>
+size_t Find(const std::string& name,
+            const std::vector<std::pair<std::string, T>>& mapping) {
+    return std::lower_bound(mapping.begin(), mapping.end(), name,
+                            PairComparator<T>) -
+           mapping.begin();
+}
+
+}  // namespace
+
+bool operator<(ScheduledNote& a, ScheduledNote& b) {
+    return a.start_sample < b.start_sample;
+}
 
 float Envelope(uint32_t t, uint32_t note_len, uint32_t attack,
                uint32_t release) {
@@ -61,9 +90,9 @@ SamplerInstrument::SamplerInstrument(std::string sample_path,
     WavReader wav_reader(sample_path);
     if (wav_reader.CheckValidity()) {
         const std::vector<int16_t>& raw_sample = wav_reader.GetData();
-        sample_.resize(raw_sample.size());
-        for (size_t i = 0; i < raw_sample.size(); ++i) {
-            sample_[i] = (float)raw_sample[i] / INT16_MAX;
+        sample_.reserve(raw_sample.size());
+        for (int16_t value : raw_sample) {
+            sample_.push_back((float)value / INT16_MAX);
         }
     }
 }
@@ -110,6 +139,82 @@ float TriangleInstrument::GenerateVoiceSample(Voice& v, uint32_t sample) {
     float frac = phase - std::floor(phase);
 
     return 4.f * std::abs(frac - .5f) - 1.f;
+}
+
+void Pattern::Expand(uint32_t bpm, std::vector<ScheduledNote>& out,
+                     uint32_t offset,
+                     std::vector<CompositionInstrument>& instruments,
+                     std::vector<CompositionPattern>& patterns) {
+    for (Event event : events_) {
+        if (std::holds_alternative<InstrumentCall>(event.call)) {
+            size_t instrument_idx =
+                Find(std::get<InstrumentCall>(event.call).instrument_name,
+                     instruments);
+
+            if (instrument_idx >= instruments.size()) {
+                continue;
+            }
+
+            uint32_t unit_end =
+                event.unit_start +
+                std::get<InstrumentCall>(event.call).note.duration;
+
+            uint32_t start =
+                offset + UnitsToSamples(event.unit_start, resolution_, bpm);
+            uint32_t end = start + UnitsToSamples(unit_end, resolution_, bpm);
+
+            out.emplace_back(start, end, instrument_idx,
+                             std::get<InstrumentCall>(event.call).note);
+        } else {
+            size_t pattern_idx =
+                Find(std::get<PatternCall>(event.call).pattern_name, patterns);
+
+            if (pattern_idx >= patterns.size()) {
+                continue;
+            }
+            uint32_t start_sample =
+                UnitsToSamples(event.unit_start, resolution_, bpm);
+            patterns[pattern_idx].second->Expand(
+                bpm, out, offset + start_sample, instruments, patterns);
+        }
+    }
+}
+
+void Composition::PrepareData() {
+    std::sort(patterns_.begin(), patterns_.end());
+    std::sort(instruments_.begin(), instruments_.end());
+    size_t start_idx = Find(kRootPattern, patterns_);
+    patterns_[start_idx].second->Expand(bpm_, notes_, 0, instruments_,
+                                        patterns_);
+    std::sort(notes_.begin(), notes_.end());
+}
+
+std::vector<uint16_t> Composition::CreateComposition() {
+    std::vector<uint16_t> data;
+    bool empty_output = false;
+    size_t notes_it = 0;
+    for (uint32_t sample = 0; !empty_output || notes_it < notes_.size();
+         ++sample) {
+        while (notes_it < notes_.size() &&
+               notes_[notes_it].start_sample <= sample) {
+            ScheduledNote& note = notes_[notes_it];
+            instruments_[note.instrument_index].second->AddVoice(note);
+            ++notes_it;
+        }
+
+        float out = 0.f;
+        empty_output = true;
+        for (auto& [name, inst] : instruments_) {
+            float inst_sound = inst->ProcessSample(sample);
+            out += inst_sound;
+            if (inst_sound != 0.f) {
+                empty_output = false;
+            }
+        }
+        out = std::clamp(out, -1.f, 1.f);
+        data.push_back(out * INT16_MAX);
+    }
+    return data;
 }
 
 }  // namespace itmoloops
