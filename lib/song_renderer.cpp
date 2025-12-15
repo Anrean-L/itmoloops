@@ -38,7 +38,7 @@ size_t Find(const std::string& name,
 
 }  // namespace
 
-bool operator<(ScheduledNote& a, ScheduledNote& b) {
+bool operator<(const ScheduledNote& a, const ScheduledNote& b) {
     return a.start_sample < b.start_sample;
 }
 
@@ -76,14 +76,21 @@ float Instrument::ProcessSample(uint32_t sample) {
         }
     }
     voices_.resize(voices_.size() - erased);
+    for (auto& effect : effects_) {
+        out = effect->Process(out, sample);
+    }
     return out;
+}
+
+void Instrument::AddVoice(const ScheduledNote& note) {
+    voices_.push_back(CreateVoice(note));
 }
 
 SamplerInstrument::SamplerInstrument(std::string sample_path,
                                      float root_frequency, uint32_t loop_start,
                                      uint32_t loop_end, float attack,
-                                     float release)
-    : Instrument(attack, release),
+                                     float release, VectorEffects effects)
+    : Instrument(attack, release, std::move(effects)),
       root_frequency_(root_frequency),
       loop_start_(loop_start),
       loop_end_(loop_end) {
@@ -161,7 +168,7 @@ void Pattern::Expand(uint32_t bpm, std::vector<ScheduledNote>& out,
 
             uint32_t start =
                 offset + UnitsToSamples(event.unit_start, resolution_, bpm);
-            uint32_t end = UnitsToSamples(unit_end, resolution_, bpm);
+            uint32_t end = offset + UnitsToSamples(unit_end, resolution_, bpm);
 
             out.emplace_back(start, end, instrument_idx,
                              std::get<InstrumentCall>(event.call).note);

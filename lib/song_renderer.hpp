@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <numbers>
 #include <string>
 #include <utility>
 #include <variant>
@@ -34,20 +36,70 @@ class Effect {
     virtual float Process(float sound, uint32_t sample) = 0;
 };
 
+class GainEffect : public Effect {
+   public:
+    explicit GainEffect(float gain) : gain_(gain) {}
+
+    float Process(float sound, uint32_t) override { return sound * gain_; }
+
+   private:
+    float gain_;
+};
+
+class TremoloEffect : public Effect {
+   public:
+    explicit TremoloEffect(float freq, float depth)
+        : freq_(freq), depth_(depth) {}
+
+    float Process(float sound, uint32_t sample) override {
+        float t = sample / (float)kFrequency;
+        float mod =
+            1.f - depth_ + depth_ * std::sin(2 * std::numbers::pi * freq_ * t);
+        return sound * mod;
+    }
+
+   private:
+    float freq_;
+    float depth_;
+};
+
+class EchoEffect : public Effect {
+   public:
+    EchoEffect(float delay, float decay)
+        : buffer_(delay * kFrequency, 0.f), decay_(decay) {}
+
+    float Process(float sound, uint32_t sample) override {
+        if (buffer_.size() == 0) {
+            return sound;
+        }
+        float y = sound + decay_ * buffer_[pos_];
+        buffer_[pos_] = sound;
+        pos_ = (pos_ + 1) % buffer_.size();
+        return y;
+    }
+
+   private:
+    std::vector<float> buffer_;
+    size_t pos_ = 0;
+    float decay_;
+};
+
+using VectorEffects = std::vector<std::unique_ptr<Effect>>;
+
 class Instrument {
    public:
     float ProcessSample(uint32_t sample);
 
-    Instrument(float attack, float release)
-        : attack_(attack * kFrequency), release_(release * kFrequency) {}
+    Instrument(float attack, float release, VectorEffects effects)
+        : attack_(attack * kFrequency),
+          release_(release * kFrequency),
+          effects_(std::move(effects)) {}
 
     Instrument(const Instrument&) = delete;
     Instrument& operator=(const Instrument&) = delete;
     virtual ~Instrument() = default;
 
-    void AddVoice(const ScheduledNote& note) {
-        voices_.push_back(CreateVoice(note));
-    }
+    void AddVoice(const ScheduledNote& note);
 
    protected:
     struct Voice {
@@ -56,7 +108,7 @@ class Instrument {
         virtual ~Voice() = default;
     };
 
-    std::vector<std::unique_ptr<Effect>> effects_;
+    VectorEffects effects_;
     std::vector<std::unique_ptr<Voice>> voices_;
     uint32_t attack_;
     uint32_t release_;
@@ -71,7 +123,8 @@ class Instrument {
 class SamplerInstrument : public Instrument {
    public:
     SamplerInstrument(std::string sample_path, float root, uint32_t loop_start,
-                      uint32_t loop_end, float attack, float release);
+                      uint32_t loop_end, float attack, float release,
+                      VectorEffects effects);
 
    protected:
     struct SamplerVoice : Voice {
@@ -93,8 +146,9 @@ class SamplerInstrument : public Instrument {
 
 class SquareInstrument : public Instrument {
    public:
-    SquareInstrument(uint8_t duty, float attack, float release)
-        : Instrument(attack, release), duty_(duty) {}
+    SquareInstrument(uint8_t duty, float attack, float release,
+                     VectorEffects effects)
+        : Instrument(attack, release, std::move(effects)), duty_(duty) {}
 
    protected:
     float GenerateVoiceSample(Voice& v, uint32_t sample) override;
@@ -105,7 +159,8 @@ class SquareInstrument : public Instrument {
 
 class SineInstrument : public Instrument {
    public:
-    SineInstrument(float attack, float release) : Instrument(attack, release) {}
+    SineInstrument(float attack, float release, VectorEffects effects)
+        : Instrument(attack, release, std::move(effects)) {}
 
    protected:
     float GenerateVoiceSample(Voice& v, uint32_t sample) override;
@@ -113,8 +168,8 @@ class SineInstrument : public Instrument {
 
 class TriangleInstrument : public Instrument {
    public:
-    TriangleInstrument(float attack, float release)
-        : Instrument(attack, release) {}
+    TriangleInstrument(float attack, float release, VectorEffects effects)
+        : Instrument(attack, release, std::move(effects)) {}
 
    protected:
     float GenerateVoiceSample(Voice& v, uint32_t sample) override;
