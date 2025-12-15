@@ -2,6 +2,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 add_library(itmoloops_lib STATIC 
     song_parser/instrument_builder.cpp
+    song_parser/effect_builder.cpp
     song_parser/song_parser.cpp
     song_parser/utils.cpp
     song_renderer.cpp

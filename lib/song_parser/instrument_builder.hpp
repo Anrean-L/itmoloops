@@ -23,14 +23,17 @@ class InstrumentBuilder {
         name_ = std::move(name);
         type_ = std::move(type);
     }
-    void AddParam(std::string key, std::string value);
 
-    std::unique_ptr<Instrument> Build(const FrequencyMap& frequency_map) const;
+    void AddParam(std::string key, std::string value);
+    void AddEffect(std::unique_ptr<Effect>& effect);
+
+    std::unique_ptr<Instrument> Build(const FrequencyMap& frequency_map);
 
    private:
     std::string name_;
     std::string type_;
     std::vector<Param> params_;
+    VectorEffects effects_;
 
     std::optional<std::string> GetParam(const std::string& key) const;
 
@@ -38,15 +41,14 @@ class InstrumentBuilder {
 
     uint32_t GetUint(const std::string& key, uint32_t def) const;
 
-    std::unique_ptr<Instrument> BuildSampler(
-        float attack, float release, const FrequencyMap& frequency_map) const;
+    std::unique_ptr<Instrument> BuildSampler(float attack, float release,
+                                             const FrequencyMap& frequency_map);
 
-    std::unique_ptr<Instrument> BuildSquare(float attack, float release) const;
+    std::unique_ptr<Instrument> BuildSquare(float attack, float release);
 
-    std::unique_ptr<Instrument> BuildSine(float attack, float release) const;
+    std::unique_ptr<Instrument> BuildSine(float attack, float release);
 
-    std::unique_ptr<Instrument> BuildTriangle(float attack,
-                                              float release) const;
+    std::unique_ptr<Instrument> BuildTriangle(float attack, float release);
 };
 
 }  // namespace itmoloops
