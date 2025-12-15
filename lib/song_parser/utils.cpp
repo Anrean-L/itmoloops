@@ -12,8 +12,11 @@ std::string Trim(const std::string& s) {
     while (l < s.length() && std::isspace(s[l])) {
         ++l;
     }
+    if (l == s.length()) {
+        return "";
+    }
     size_t r = s.length() - 1;
-    while (r >= 0 && std::isspace(s[r])) {
+    while (std::isspace(s[r])) {
         --r;
     }
     return s.substr(l, r - l + 1);
