@@ -28,6 +28,12 @@ struct ScheduledNote {
     Note note;
 };
 
+class Effect {
+   public:
+    virtual ~Effect() = default;
+    virtual float Process(float sound, uint32_t sample) = 0;
+};
+
 class Instrument {
    public:
     float ProcessSample(uint32_t sample);
@@ -50,6 +56,7 @@ class Instrument {
         virtual ~Voice() = default;
     };
 
+    std::vector<std::unique_ptr<Effect>> effects_;
     std::vector<std::unique_ptr<Voice>> voices_;
     uint32_t attack_;
     uint32_t release_;
@@ -161,7 +168,7 @@ class Composition {
         patterns_.emplace_back(std::move(name), std::move(pattern));
     }
 
-    std::vector<uint16_t> CreateComposition();
+    std::vector<int16_t> CreateComposition();
 
    private:
     uint32_t bpm_ = 60;
