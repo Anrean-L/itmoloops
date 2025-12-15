@@ -1,5 +1,6 @@
 #include "app_config.hpp"
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <string_view>
