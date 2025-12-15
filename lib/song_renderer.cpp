@@ -190,7 +190,7 @@ void Pattern::Expand(uint32_t bpm, std::vector<ScheduledNote>& out,
 void Composition::PrepareData() {
     std::sort(patterns_.begin(), patterns_.end());
     std::sort(instruments_.begin(), instruments_.end());
-    size_t start_idx = Find(kRootPattern, patterns_);
+    size_t start_idx = Find((std::string)kRootPattern, patterns_);
     patterns_[start_idx].second->Expand(bpm_, notes_, 0, instruments_,
                                         patterns_);
     std::sort(notes_.begin(), notes_.end());

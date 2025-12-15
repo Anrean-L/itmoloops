@@ -6,6 +6,7 @@ add_library(itmoloops_lib STATIC
     song_parser/song_parser.cpp
     song_parser/utils.cpp
     song_renderer.cpp
+    app_config.cpp
     wav_file.cpp
 )
 target_include_directories(itmoloops_lib PUBLIC     
