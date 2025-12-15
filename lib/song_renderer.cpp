@@ -62,7 +62,7 @@ float Instrument::ProcessSample(uint32_t sample) {
     uint32_t erased = 0;
     for (size_t i = 0; i < voices_.size(); ++i) {
         Voice& v = *voices_[i];
-        if (v.note.end_sample + release_ < sample) {
+        if (v.note.end_sample + release_ <= sample) {
             ++erased;
             continue;
         }
@@ -161,7 +161,7 @@ void Pattern::Expand(uint32_t bpm, std::vector<ScheduledNote>& out,
 
             uint32_t start =
                 offset + UnitsToSamples(event.unit_start, resolution_, bpm);
-            uint32_t end = start + UnitsToSamples(unit_end, resolution_, bpm);
+            uint32_t end = UnitsToSamples(unit_end, resolution_, bpm);
 
             out.emplace_back(start, end, instrument_idx,
                              std::get<InstrumentCall>(event.call).note);
@@ -189,27 +189,24 @@ void Composition::PrepareData() {
     std::sort(notes_.begin(), notes_.end());
 }
 
-std::vector<uint16_t> Composition::CreateComposition() {
-    std::vector<uint16_t> data;
-    bool empty_output = false;
+std::vector<int16_t> Composition::CreateComposition() {
+    PrepareData();
+    std::vector<int16_t> data;
+    uint32_t final_sample = 0;
     size_t notes_it = 0;
-    for (uint32_t sample = 0; !empty_output || notes_it < notes_.size();
+    for (uint32_t sample = 0; sample < final_sample || notes_it < notes_.size();
          ++sample) {
         while (notes_it < notes_.size() &&
                notes_[notes_it].start_sample <= sample) {
             ScheduledNote& note = notes_[notes_it];
+            final_sample = std::max(final_sample, note.end_sample);
             instruments_[note.instrument_index].second->AddVoice(note);
             ++notes_it;
         }
 
         float out = 0.f;
-        empty_output = true;
         for (auto& [name, inst] : instruments_) {
-            float inst_sound = inst->ProcessSample(sample);
-            out += inst_sound;
-            if (inst_sound != 0.f) {
-                empty_output = false;
-            }
+            out += inst->ProcessSample(sample);
         }
         out = std::clamp(out, -1.f, 1.f);
         data.push_back(out * INT16_MAX);
