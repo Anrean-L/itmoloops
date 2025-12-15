@@ -1,6 +1,5 @@
 #include "effect_builder.hpp"
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>

@@ -4,9 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <fstream>
-#include <iostream>
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -117,7 +115,6 @@ std::unique_ptr<Composition> ParseComposition(
                     }
                     std::unique_ptr<Effect> effect = effect_builder.Build();
                     if (!effect) {
-                        std::cout << "d";
                         return nullptr;
                     }
                     instrument_builder->AddEffect(effect);
