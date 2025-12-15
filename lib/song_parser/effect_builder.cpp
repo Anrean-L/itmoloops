@@ -1,10 +1,12 @@
 #include "effect_builder.hpp"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
 #include "song_renderer.hpp"
+
 
 namespace itmoloops {
 

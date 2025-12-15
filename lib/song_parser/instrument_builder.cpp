@@ -1,11 +1,15 @@
 #include "instrument_builder.hpp"
 
+#include <cstdint>
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
 #include "song_parser/song_parser.hpp"
+#include "song_parser/utils.hpp"
 #include "song_renderer.hpp"
+
 
 namespace itmoloops {
 
