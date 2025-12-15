@@ -96,7 +96,7 @@ std::unique_ptr<Composition> ParseComposition(const std::string& file_path,
             case State::Instrument: {
                 if (tokens[0] == "end") {
                     std::unique_ptr<Instrument> new_instrument =
-                        instrument_builder->Build();
+                        instrument_builder->Build(frequency_map);
                     if (!new_instrument) {
                         return nullptr;
                     }
@@ -187,7 +187,7 @@ std::unique_ptr<Composition> ParseComposition(
             case State::Instrument: {
                 if (tokens[0] == "end") {
                     std::unique_ptr<Instrument> new_instrument =
-                        instrument_builder->Build();
+                        instrument_builder->Build(frequency_map);
                     if (!new_instrument) {
                         return nullptr;
                     }

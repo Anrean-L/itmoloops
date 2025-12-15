@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 
+#include "song_parser/song_parser.hpp"
+
 namespace itmoloops {
 
 void InstrumentBuilder::AddParam(std::string key, std::string value) {
@@ -16,11 +18,12 @@ void InstrumentBuilder::AddParam(std::string key, std::string value) {
     params_.emplace_back(std::move(key), std::move(value));
 }
 
-std::unique_ptr<Instrument> InstrumentBuilder::Build() const {
+std::unique_ptr<Instrument> InstrumentBuilder::Build(
+    const FrequencyMap& frequency_map) const {
     float attack = GetFloat("attack", 0.f);
     float release = GetFloat("release", 0.f);
     if (type_ == "sampler") {
-        return BuildSampler(attack, release);
+        return BuildSampler(attack, release, frequency_map);
     } else if (type_ == "square") {
         return BuildSquare(attack, release);
     } else if (type_ == "sine") {
@@ -59,12 +62,13 @@ uint32_t InstrumentBuilder::GetUint(const std::string& key,
 }
 
 std::unique_ptr<Instrument> InstrumentBuilder::BuildSampler(
-    float attack, float release) const {
+    float attack, float release, const FrequencyMap& frequency_map) const {
     auto sample = GetParam("sample");
-    auto root = GetFloat("root", 0.f);
-    if (!sample || !root) {
+    auto root_note = GetParam("root");
+    if (!sample || !root_note) {
         return nullptr;
     }
+    float root = frequency_map.GetFrequency(*root_note);
     uint32_t loop_start = 0;
     uint32_t loop_end = 0;
     auto loop = GetParam("loop");

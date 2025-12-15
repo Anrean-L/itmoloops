@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "song_parser/song_parser.hpp"
 #include "song_renderer.hpp"
 #include "utils.hpp"
 
@@ -24,7 +25,7 @@ class InstrumentBuilder {
     }
     void AddParam(std::string key, std::string value);
 
-    std::unique_ptr<Instrument> Build() const;
+    std::unique_ptr<Instrument> Build(const FrequencyMap& frequency_map) const;
 
    private:
     std::string name_;
@@ -37,7 +38,8 @@ class InstrumentBuilder {
 
     uint32_t GetUint(const std::string& key, uint32_t def) const;
 
-    std::unique_ptr<Instrument> BuildSampler(float attack, float release) const;
+    std::unique_ptr<Instrument> BuildSampler(
+        float attack, float release, const FrequencyMap& frequency_map) const;
 
     std::unique_ptr<Instrument> BuildSquare(float attack, float release) const;
 
