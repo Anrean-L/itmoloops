@@ -27,7 +27,7 @@ std::string Trim(const std::string& s) {
 std::string StripComment(const std::string& s) {
     for (size_t i = 0; i < s.size(); ++i) {
         if (s[i] == '#' && (i == 0 || std::isspace(s[i - 1]))) {
-            return s.substr(0, std::max(0ull, i - 1));
+            return s.substr(0, std::max((size_t)0, i - 1));
         }
     }
     return s;
