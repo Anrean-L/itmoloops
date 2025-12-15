@@ -26,6 +26,92 @@ enum class State {
     kPattern,
 };
 
+bool ParseGlobal(std::vector<std::string>& tokens, State& state,
+                 std::unique_ptr<Composition>& comp,
+                 std::unique_ptr<InstrumentBuilder>& instrument_builder,
+                 std::unique_ptr<Pattern>& current_pattern,
+                 std::string& current_pattern_name) {
+    if (tokens[0] == "bpm") {
+        comp->SetBpm(std::stoul(tokens[1]));
+    } else if (tokens[0] == "instrument") {
+        if (tokens.size() < 3) {
+            return false;
+        }
+        instrument_builder =
+            std::make_unique<InstrumentBuilder>(tokens[1], tokens[2]);
+        state = State::kInstrument;
+    } else if (tokens[0] == "pattern") {
+        if (tokens.size() < 4) {
+            return false;
+        }
+        current_pattern_name = tokens[1];
+        current_pattern = std::make_unique<Pattern>(std::stoul(tokens[3]));
+
+        state = State::kPattern;
+    }
+    return true;
+}
+
+bool ParseInstrument(std::string& line, std::vector<std::string>& tokens,
+                     State& state, std::unique_ptr<Composition>& comp,
+                     std::unique_ptr<InstrumentBuilder>& instrument_builder,
+                     const FrequencyMap& frequency_map) {
+    if (tokens[0] == "end") {
+        std::unique_ptr<Instrument> new_instrument =
+            instrument_builder->Build(frequency_map);
+        if (!new_instrument) {
+            return false;
+        }
+        comp->AddInstrument(instrument_builder->GetName(),
+                            std::move(new_instrument));
+        state = State::kGlobal;
+    } else if (tokens[0] == "effect") {
+        if (tokens.size() < 2) {
+            return false;
+        }
+        EffectBuilder effect_builder(tokens[1]);
+        for (size_t i = 2; i < tokens.size(); ++i) {
+            auto [k, v] = SplitOnce(tokens[i], '=');
+            effect_builder.AddParam(k, v);
+        }
+        std::unique_ptr<Effect> effect = effect_builder.Build();
+        if (!effect) {
+            return false;
+        }
+        instrument_builder->AddEffect(effect);
+    } else {
+        Param p = SplitOnce(line, '=');
+        instrument_builder->AddParam(Trim(p.first), Trim(p.second));
+    }
+    return true;
+}
+
+bool ParsePattern(std::vector<std::string>& tokens, State& state,
+                  std::unique_ptr<Composition>& comp,
+                  std::unique_ptr<Pattern>& current_pattern,
+                  std::string& current_pattern_name,
+                  const FrequencyMap& frequency_map) {
+    if (tokens[0] == "end") {
+        comp->AddPattern(current_pattern_name, std::move(current_pattern));
+        state = State::kGlobal;
+    } else {
+        uint32_t start = std::stoul(tokens[0]);
+        if (tokens.size() == 2) {
+            current_pattern->AddCall(start, tokens[1].substr(1));
+        } else if (tokens.size() >= 5) {
+            current_pattern->AddNote(
+                start,
+                {.duration = (uint32_t)std::stoul(tokens[3]),
+                 .frequency = frequency_map.GetFrequency(tokens[2]),
+                 .velocity = std::stof(tokens[4]) / 100.f},
+                tokens[1]);
+        } else {
+            return false;
+        }
+    }
+    return true;
+}
+
 }  // namespace
 
 FrequencyMap::FrequencyMap(const std::string& file_path) {
@@ -73,77 +159,18 @@ std::unique_ptr<Composition> ParseComposition(
         std::vector<std::string> tokens = Split(line);
         switch (state) {
             case State::kGlobal: {
-                if (tokens[0] == "bpm") {
-                    comp->SetBpm(std::stoul(tokens[1]));
-                } else if (tokens[0] == "instrument") {
-                    if (tokens.size() < 3) {
-                        return nullptr;
-                    }
-                    instrument_builder = std::make_unique<InstrumentBuilder>(
-                        tokens[1], tokens[2]);
-                    state = State::kInstrument;
-                } else if (tokens[0] == "pattern") {
-                    if (tokens.size() < 4) {
-                        return nullptr;
-                    }
-                    current_pattern_name = tokens[1];
-                    current_pattern =
-                        std::make_unique<Pattern>(std::stoul(tokens[3]));
-
-                    state = State::kPattern;
-                }
+                ParseGlobal(tokens, state, comp, instrument_builder,
+                            current_pattern, current_pattern_name);
                 break;
             }
             case State::kInstrument: {
-                if (tokens[0] == "end") {
-                    std::unique_ptr<Instrument> new_instrument =
-                        instrument_builder->Build(frequency_map);
-                    if (!new_instrument) {
-                        return nullptr;
-                    }
-                    comp->AddInstrument(instrument_builder->GetName(),
-                                        std::move(new_instrument));
-                    state = State::kGlobal;
-                } else if (tokens[0] == "effect") {
-                    if (tokens.size() < 2) {
-                        return nullptr;
-                    }
-                    EffectBuilder effect_builder(tokens[1]);
-                    for (size_t i = 2; i < tokens.size(); ++i) {
-                        auto [k, v] = SplitOnce(tokens[i], '=');
-                        effect_builder.AddParam(k, v);
-                    }
-                    std::unique_ptr<Effect> effect = effect_builder.Build();
-                    if (!effect) {
-                        return nullptr;
-                    }
-                    instrument_builder->AddEffect(effect);
-                } else {
-                    Param p = SplitOnce(line, '=');
-                    instrument_builder->AddParam(Trim(p.first), Trim(p.second));
-                }
+                ParseInstrument(line, tokens, state, comp, instrument_builder,
+                                frequency_map);
                 break;
             }
             case State::kPattern: {
-                if (tokens[0] == "end") {
-                    comp->AddPattern(current_pattern_name,
-                                     std::move(current_pattern));
-                    state = State::kGlobal;
-                } else {
-                    uint32_t start = std::stoul(tokens[0]);
-                    if (tokens.size() == 2) {
-                        current_pattern->AddCall(start, tokens[1].substr(1));
-                    } else if (tokens.size() >= 5) {
-                        current_pattern->AddNote(
-                            start,
-                            {.duration = (uint32_t)std::stoul(tokens[3]),
-                             .frequency = frequency_map.GetFrequency(tokens[2]),
-                             .velocity = std::stof(tokens[4]) / 100.f},
-                            tokens[1]);
-                    } else {
-                        return nullptr;
-                    }
-                }
+                ParsePattern(tokens, state, comp, current_pattern,
+                             current_pattern_name, frequency_map);
                 break;
             }
         }
