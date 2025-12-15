@@ -215,7 +215,7 @@ std::vector<int16_t> Composition::CreateComposition() {
         for (auto& [name, inst] : instruments_) {
             out += inst->ProcessSample(sample);
         }
-        out = std::clamp(out, -1.f, 1.f);
+        out = std::tanh(out);
         data.push_back(out * INT16_MAX);
     }
     return data;

@@ -7,7 +7,6 @@
 
 #include "song_renderer.hpp"
 
-
 namespace itmoloops {
 
 void EffectBuilder::AddParam(std::string key, std::string value) {
@@ -30,13 +29,13 @@ std::unique_ptr<Effect> EffectBuilder::Build() const {
         auto freq = GetFloat("freq");
         auto depth = GetFloat("depth");
         if (freq && depth) {
-            return std::make_unique<EchoEffect>(*freq, *depth);
+            return std::make_unique<TremoloEffect>(*freq, *depth);
         }
     } else if (type_ == "echo") {
         auto delay = GetFloat("delay");
         auto decay = GetFloat("decay");
         if (delay && decay) {
-            return std::make_unique<TremoloEffect>(*delay, *decay);
+            return std::make_unique<EchoEffect>(*delay, *decay);
         }
     }
     return nullptr;
