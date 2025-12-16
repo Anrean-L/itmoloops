@@ -159,18 +159,24 @@ std::unique_ptr<Composition> ParseComposition(
         std::vector<std::string> tokens = Split(line);
         switch (state) {
             case State::kGlobal: {
-                ParseGlobal(tokens, state, comp, instrument_builder,
-                            current_pattern, current_pattern_name);
+                if (!ParseGlobal(tokens, state, comp, instrument_builder,
+                                 current_pattern, current_pattern_name)) {
+                    return nullptr;
+                }
                 break;
             }
             case State::kInstrument: {
-                ParseInstrument(line, tokens, state, comp, instrument_builder,
-                                frequency_map);
+                if (!ParseInstrument(line, tokens, state, comp,
+                                     instrument_builder, frequency_map)) {
+                    return nullptr;
+                }
                 break;
             }
             case State::kPattern: {
-                ParsePattern(tokens, state, comp, current_pattern,
-                             current_pattern_name, frequency_map);
+                if (!ParsePattern(tokens, state, comp, current_pattern,
+                                  current_pattern_name, frequency_map)) {
+                    return nullptr;
+                }
                 break;
             }
         }

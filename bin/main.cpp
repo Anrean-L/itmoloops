@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -31,11 +32,39 @@ void LogOk(const std::string& msg) {
 
 void PrintBanner() {
     std::cout << ansi::kPurple << ansi::kBold
-              << "╔══════════════════════════════════════╗\n"
-              << "║            ITMO LOOPS                ║\n"
-              << "║     Text-based music renderer        ║\n"
-              << "╚══════════════════════════════════════╝\n\n"
+              << "╔══════════════════════════════════════════╗\n"
+              << "║                ITMO LOOPS                ║\n"
+              << "║         Text-based music renderer        ║\n"
+              << "╚══════════════════════════════════════════╝\n"
               << ansi::kReset;
+}
+
+bool PrintAsciiArtFromScript(const std::string& path) {
+    std::ifstream in(path);
+    if (!in) {
+        return false;
+    }
+
+    std::vector<std::string> lines;
+    std::string line;
+
+    while (std::getline(in, line)) {
+        if (line.starts_with('#')) {
+            lines.push_back(line.substr(1));
+        } else {
+            break;
+        }
+    }
+    if (lines.empty()) {
+        return true;
+    }
+
+    std::cout << '\n';
+    for (const std::string& l : lines) {
+        std::cout << ansi::kPurple << l << ansi::kReset << '\n';
+    }
+    std::cout << '\n';
+    return true;
 }
 
 }  // namespace
@@ -50,6 +79,10 @@ int main(int argc, char* argv[]) {
         config.ReadInteractively();
     }
 
+    if (!PrintAsciiArtFromScript(config.GetScriptPath())) {
+        return 2;
+    }
+
     LogInfo("Loading notes database...");
     itmoloops::FrequencyMap frequency_map(kNotesPath);
     LogOk("Notes loaded");
@@ -59,7 +92,7 @@ int main(int argc, char* argv[]) {
         itmoloops::ParseComposition(config.GetScriptPath(), frequency_map);
     if (!composition) {
         LogError("Failed to parse");
-        return 2;
+        return 3;
     }
     LogOk("Composition parsed");
 
