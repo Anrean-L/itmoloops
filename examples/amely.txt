@@ -1,0 +1,268 @@
+#    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣤⣤⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀
+#    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣤⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣤⡀⠀⠀⠀⠀
+#    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀
+#    ⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠿⣿⣿⣿⣿⣷⠀⠀
+#    ⠀⠀⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⠀⢸⣿⣿⣿⣿⣇⠀   
+#    ⠀⠀⠀⠀⣠⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡏⢀⣿⣿⣿⣿⣿⣿⠀   
+#    ⠀⠀⠀⠀⢿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠛⠻⠿⠿⠿⠟⠀⠼⠿⢿⣿⣿⣿⣿⠀     Music:          Comptine d'un autre été
+#    ⠀⠀⠀⠀⠀⠻⣿⣿⣿⣿⣿⣿⣿⠀⢠⣶⣶⣶⣦⡀⠀⢀⣠⣾⣿⣿⣿⣿⡆     Composer:                lixelv
+#    ⠀⠀⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⡇⠀⠈⠙⠁⠉⠁⠀⠘⠉⢻⣿⣿⣿⣿⣷     Compositor:           Yann Tiersen
+#    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⣿⡟⠿⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⠏⠉⠉⠁
+#    ⠀⠀⠀⠀⠀⠀⠀⣀⣀⣾⣿⣿⣦⣀⠀⠀⠸⣶⣤⣠⣶⠄⢠⣿⡟⠀⠀⠀⠀
+#    ⠀⠀⣠⣶⣿⣿⣿⣿⣿⡛⠁⠉⠻⢿⣷⣦⣀⠀⠉⠉⢁⣴⣿⣿⣤⣀⠀⠀⠀
+#    ⢀⣾⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⠀⠉⠛⢿⣿⣶⣶⣿⣿⣿⣿⣿⣿⣷⡀⠀
+#    ⢸⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣷⣦⣄⣀⠀⣀⣴⣿⣿⣿⣿⣿⣿⣧⠀
+#    ⠀⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠁⠀
+
+bpm 90
+
+instrument str sampler
+    sample=./samples/str.wav
+    root=C7
+    loop=60,16777
+    attack=0.025
+    release=0.3
+end
+
+instrument piano sampler
+    sample=./samples/piano.wav
+    root=C5
+    attack=0.001
+    release=0.1
+end
+
+pattern base resolution 2
+    00 str E5 4 30
+    00 str E6 2 30
+    01 str B5 2 30
+    02 str G5 4 30
+    02 str E6 2 30
+    03 str B5 2 30
+
+    04 str E5 4 30
+    04 str E6 2 30
+    05 str B5 2 30
+    06 str G5 4 30
+    06 str E6 2 30
+    07 str B5 2 30
+
+
+    08 str D5 4 30
+    08 str D6 2 30
+    09 str B5 2 30
+    10 str G5 4 30
+    10 str D6 2 30
+    11 str B5 2 30
+
+    12 str D5 4 30
+    12 str D6 2 30
+    13 str B5 2 30
+    14 str G5 4 30
+    14 str D6 2 30
+    15 str B5 2 30
+
+
+    16 str D5 4 30
+    16 str D6 2 30
+    17 str B5 2 30
+    18 str F#5 4 30
+    18 str D6 2 30
+    19 str B5 2 30
+
+    20 str D5 4 30
+    20 str D6 2 30
+    21 str B5 2 30
+    22 str F#5 4 30
+    22 str D6 2 30
+    23 str B5 2 30
+
+
+    24 str D5 4 30
+    24 str D6 2 30
+    25 str A5 2 30
+    26 str F#5 4 30
+    26 str D6 2 30
+    27 str A5 2 30
+
+    28 str D5 4 30
+    28 str D6 2 30
+    29 str A5 2 30
+    30 str F#5 4 30
+    30 str D6 2 30
+    31 str A5 2 30
+end
+
+pattern first resolution 12
+    6  str G6 4 60
+    9  str F#6 4 60
+    12 str G6 8 60
+
+    18 str B6 4 60
+    21 str C7 4 60
+    24 str B6 24 60
+
+    54 str F#6 4 60
+    57 str E6 4 60
+    60 str F#6 8 60
+
+    66 str G6 4 60
+    69 str A6 4 60
+    72 str G6 24 60
+
+    102 str F#6 4 60
+    105 str E6 4 60
+    108 str F#6 8 60
+
+    114 str B6 4 60
+    117 str C7 4 60
+    120 str B6 24 60
+
+    150 str F#6 4 60
+    153 str E6 4 60
+    156 str F#6 36 60
+end
+
+pattern second resolution 12
+    00 str E7 24 60
+    18 str B6 40 60
+
+    48 str D7 24 60
+    66 str B6 40 60
+
+    96 str F#7 24 60
+    114 str B6 40 60
+
+    144 str F#7 24 60
+    162 str A6 40 60
+end
+
+pattern second-major resolution 12
+    00 str G7 24 60
+    00 str B6 24 60
+    18 str E7 40 60
+    18 str G6 40 60
+
+    48 str G7 24 60
+    48 str B6 24 60
+    66 str D7 40 60
+    66 str G6 40 60
+
+    96 str F#7 24 60
+    96 str B6 24 60
+    114 str D7 40 60
+    114 str F#6 40 60
+
+    144 str F#7 24 60
+    144 str A6 24 60
+    162 str D7 40 60
+    162 str F#6 40 60
+end
+
+pattern third resolution 12
+    00 str B6 8 60
+    03 str E7 8 60
+    06 str B7 8 60
+
+    09 str B6 8 60
+    12 str E7 8 60
+    15 str B7 8 60
+
+    18 str B6 8 60
+    21 str E7 8 60
+    24 str B7 8 60
+
+    27 str B6 8 60
+    30 str E7 8 60
+    33 str B7 8 60
+
+    36 str B6 8 60
+    39 str E7 8 60
+    42 str C7 8 60
+
+
+    48 str B6 8 60
+    51 str D7 8 60
+    54 str B7 8 60
+
+    57 str B6 8 60
+    60 str D7 8 60
+    63 str B7 8 60
+
+    66 str B6 8 60
+    69 str D7 8 60
+    72 str B7 8 60
+
+    75 str B6 8 60
+    78 str D7 8 60
+    81 str B7 8 60
+
+    84 str B6 8 60
+    87 str D7 8 60
+    90 str A6 8 60
+
+
+    96 str F#6 8 60
+    99 str B6 8 60
+    102 str F#7 8 60
+
+    105 str F#6 8 60
+    108 str B6 8 60
+    111 str F#7 8 60
+
+    114 str F#6 8 60
+    117 str B6 8 60
+    120 str F#7 8 60
+
+    123 str F#6 8 60
+    126 str B6 8 60
+    129 str F#7 8 60
+
+    132 str F#6 8 60
+    135 str B6 8 60
+    138 str G6 8 60
+
+
+    144 str A6 8 60
+    147 str D7 8 60
+    150 str A7 8 60
+
+    153 str A6 8 60
+    156 str D7 8 60
+    159 str A7 8 60
+
+    162 str A6 8 60
+    165 str D7 8 60
+    168 str A7 8 60
+
+    171 str A6 8 60
+    174 str D7 8 60
+    177 str A7 8 60
+
+    180 str A6 8 60
+    183 str D7 8 60
+    186 str G6 8 60
+end
+
+pattern ending resolution 1
+    00 str E5 6 60
+    00 str B5 6 60
+    00 str E6 6 60
+end
+
+pattern main resolution 1
+    00 @base
+    16 @base
+    32 @base
+    48 @base
+    64 @base
+    80 @base
+    96 @base
+
+    16 @first
+    32 @first
+    48 @second
+    64 @second-major
+    80 @third
+    96 @third
+    113 @ending
+end

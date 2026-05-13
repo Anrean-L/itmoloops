@@ -1,0 +1,175 @@
+#  ⠀⠀⠀⠀⠀ ⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+#  ⠀⠀⠀⠀   ⠀   ⣵⣿⣿⣿⣿⣿⣿⣿⣶⣆               Music:     Interstellar Main Theme
+#  ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣶⣿⣿⡿⠛⠉⠉⠉⠛⢿⣿⣿⣷⣄⡀⠀⠀⠀⠀⠀     Composer:         lixelv
+#  ⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⣿⠋⠀⠀⠀⠀⠀⠀⠀⠙⣿⣿⣿⣿⣶⣤⣀⡀⠀     Compositor:     Hans Zimmer
+#  ⠀⠀⣀⠰⢿⢿⣿⣿⣿⣿⣿⣀⣀⣀⣀⣀⣀⣰⣰⣶⣿⣿⣿⣿⣿⠿⠿⠁⠉⠁
+#   ⠀⠀⠀⠈⠉⠛⠛⠛⠛⣿⣿⡽⣏⠉⠉⠉⠉⠉⣽⣿⠉⠉⠀⠀⠀⠀⠀⠀⠀      Do not go gentle into that good night,
+#  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠉⠻⣷⣦⣄⣀⣠⣴⣾⡿⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀      Old age should burn and rave at close of day;
+#  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠛⠿⠿⠿⠟⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀      Rage, rage against the dying of the light.
+#                                                                             -- Dylan Thomas
+
+bpm 60
+
+instrument tick sine
+    attack=0.04
+    release=0.06
+end
+
+instrument str sampler
+    sample=./samples/str.wav
+    root=C7
+    loop=60,16777
+    attack=0.01
+    release=0.06
+end
+
+pattern ticking resolution 8
+    00 tick E6 4 18
+    02 tick C6 4 18
+    04 tick E6 4 18
+    06 tick C6 4 18
+    08 tick E6 4 18
+    10 tick C6 4 18
+    12 tick E6 4 18
+    14 tick C6 4 18
+    16 tick E6 4 18
+    18 tick C6 4 18
+    20 tick E6 4 18
+    22 tick C6 4 18
+    24 tick E6 4 18
+    26 tick C6 4 18
+    28 tick E6 4 18
+    30 tick C6 4 18
+end 
+
+pattern repetition resolution 64
+    0   str A5 64 60
+    32  str E6 96 60
+
+    96  str A5 64 60
+    128 str E6 96 60
+
+    192 str B5 64 60
+    224 str E6 96 60
+
+    288 str B5 64 60
+    320 str E6 96 60
+
+    384 str C6 64 60
+    416 str E6 96 60
+
+    480 str C6 64 60
+    512 str E6 96 60
+
+    576 str D6 64 60
+    608 str E6 96 60
+
+    672 str D6 64 60
+    704 str E6 96 60
+
+    736 str C6 32 60
+    752 str B5 32 60
+    768 str A5 32 60
+end
+
+pattern repetition-major resolution 64
+    2   str A6 76 30
+    4   str E6 72 30
+    32  str E7 112 30
+
+    98  str A6 76 30
+    100 str E6 72 30
+    128 str E7 112 30
+
+    192 str B6 76 30
+    196 str F#6 72 30
+    224 str E7 112 30
+
+    290 str B6 76 30
+    292 str F#6 72 30
+    320 str E7 112 30
+
+    386 str C7 76 30
+    388 str G6 72 30
+    416 str E7 112 30
+
+    482 str C7 76 30
+    484 str G6 72 30
+    512 str E7 112 30
+
+    578 str D7 76 30
+    580 str A6 72 30
+    608 str E7 112 30
+
+    674 str D7 76 30
+    676 str A6 72 30
+    704 str E7 112 30
+end
+
+pattern main resolution 8
+    00 @ticking
+    32 @ticking
+    64 @ticking
+    96 @ticking
+    128 @ticking
+    160 @ticking
+    192 @ticking
+    224 @ticking
+
+    32 str A5 16 40
+    44 str B5 20 40
+
+    64 str A5 8 50
+    68 str B5 8 50
+    72 str C6 8 50
+    76 str B5 8 50
+    80 str A5 8 50
+    84 str C6 8 50
+    88 str B5 8 50
+    92 str A5 8 50
+    96 str G5 8 50
+    100 str A5 8 50
+    104 str B5 8 50
+    108 str G5 8 50
+    112 str B5 8 50
+    116 str A5 8 50
+    120 str G5 8 50
+    124 str A5 8 50
+    128 str B5 8 50
+    132 str G5 8 50
+
+    136 str A5 8 50
+    140 str C6 8 50
+    144 str B5 8 50
+    148 str D6 8 50
+    152 str C6 8 50
+    156 str A5 8 50
+    160 str B5 8 50
+    164 str G5 8 50
+    168 str A5 8 50
+    172 str C6 8 50
+    176 str B5 8 50
+    180 str D6 8 50
+    184 str C6 8 50
+    188 str D6 8 50
+    192 str C6 8 50
+    196 str B5 8 50
+    200 str A5 8 50
+    204 str C6 8 50
+    208 str B5 8 50
+    212 str A5 8 50
+    216 str G5 8 50
+    220 str A5 8 50
+    224 str B5 8 50
+    228 str G5 8 50
+    232 str B5 8 50
+    236 str A5 8 50
+    240 str G5 8 50
+    244 str E6 8 50
+    248 str B5 8 50
+    252 str G5 8 50
+
+    256 @repetition
+    352 @repetition
+    352 @repetition-major
+end

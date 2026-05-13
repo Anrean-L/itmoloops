@@ -7,8 +7,19 @@ project(
     LANGUAGES CXX
 )
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(ITMOLOOPS_NOTES_FILE
+    ${CMAKE_CURRENT_SOURCE_DIR}/resources/notes.txt
+)
+
+configure_file(
+    ${ITMOLOOPS_NOTES_FILE}
+    ${CMAKE_CURRENT_BINARY_DIR}/notes.txt
+    COPYONLY
+)
 
 add_subdirectory(lib)
 add_subdirectory(bin)
